@@ -215,9 +215,13 @@ def download_playlist_tracks(playlist_link, outpath, create_folder, trackname_co
     if (playlist_name != playlist_name_old):
         print(f'\n"{playlist_name_old}" is not a valid folder name. Using "{playlist_name}" instead.')
 
+    print(f"Playlist name = {playlist_name}")
+
     # Create folder if needed
     if create_folder == True:
         outpath = os.path.join(outpath, playlist_name)
+
+    resolve_path(outpath)
     
     if os.path.exists(outpath):
         song_list_dict = check_existing_tracks(song_list_dict, outpath)
@@ -226,20 +230,21 @@ def download_playlist_tracks(playlist_link, outpath, create_folder, trackname_co
         print(f"\nAll tracks from {playlist_name} already exist in the directory ({outpath}).")
         return
     
-    print(f"\nDownloading {len(song_list_dict)} new track(s) from {playlist_name} to ({outpath})")
+    print(f"Downloading {len(song_list_dict)} new track(s) from {playlist_name} to ({outpath})")
     print("-" * 40 )
 
     for index, trackname in enumerate(song_list_dict.keys(), 1):
-        print(f"{index}/{len(song_list_dict)}: {trackname}")
+        print(f"{index}/{len(song_list_dict)}: ")
         download_track(song_list_dict[trackname].link, outpath, trackname_convention)
             
     remove_empty_files(outpath)
 
 def check_track_playlist(link, outpath, create_folder, trackname_convention):
-    resolve_path(outpath)
+    
     # if "/track/" in link:
     if re.search(r".*spotify\.com\/(?:intl-[a-zA-Z]{2}\/)?track\/", link):
-        print("\nPlaylist link identified")
+        print("\nTrack link identified")
+        resolve_path(outpath)
         download_track(link, outpath, trackname_convention)
 
     # elif "/playlist/" in link:
@@ -340,6 +345,9 @@ def main():
     print("\n" + "-"*25 + " Task complete ;) " + "-"*25 + "\n")
 
 if __name__ == "__main__":
-    logging.info("-" * 10 + "Program started" + "-" * 10)
-    main()
-    logging.info("-" * 10 + "Program ended" + "-" * 10)
+    try:
+        logging.info("-" * 10 + "Program started" + "-" * 10)
+        main()
+        logging.info("-" * 10 + "Program ended" + "-" * 10)
+    except KeyboardInterrupt:
+        print("\n--- Program stopped by user ---")
